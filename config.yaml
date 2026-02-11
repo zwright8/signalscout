@@ -1,0 +1,71 @@
+# SignalScout Configuration
+# Define your Ideal Customer Profile (ICP) and signal sources
+
+icp:
+  description: "AI tools for small business"
+  industries:
+    - artificial intelligence
+    - machine learning
+    - SaaS
+    - small business software
+    - automation
+  keywords:
+    - "AI tools"
+    - "small business"
+    - "automation"
+    - "looking for a tool"
+    - "anyone recommend"
+    - "switching from"
+    - "alternative to"
+    - "best tool for"
+    - "need help with"
+    - "recommend a"
+  pain_points:
+    - "too expensive"
+    - "hard to use"
+    - "need something simpler"
+    - "outgrown"
+    - "looking for alternative"
+  company_size:
+    - "startup"
+    - "small business"
+    - "SMB"
+    - "solopreneur"
+    - "small team"
+
+sources:
+  hackernews:
+    enabled: true
+    max_stories: 100
+    search_queries:
+      - "AI tools small business"
+      - "recommend tool"
+      - "looking for software"
+      - "automation small business"
+  reddit:
+    enabled: true
+    subreddits:
+      - SaaS
+      - startups
+      - smallbusiness
+      - Entrepreneur
+      - artificial
+    max_posts_per_sub: 25
+    search_queries:
+      - "AI tools"
+      - "recommend"
+      - "looking for"
+      - "alternative to"
+
+scoring:
+  min_score: 3
+  weights:
+    keyword_match: 0.4
+    pain_point_match: 0.2
+    recency: 0.2
+    engagement: 0.2
+
+output:
+  leads_file: "output/leads.json"
+  report_file: "output/report.md"
+  max_leads: 50
