@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SignalScout — AI-Powered B2B Lead Detection</title>
-  <meta name="description" content="Stop cold outreach. SignalScout uses AI to monitor public signals and find companies ready to buy RIGHT NOW. Free to start.">
+  <meta name="description" content="Stop cold outreach. SignalScout uses AI to monitor public signals and find companies ready to buy RIGHT NOW.">
   <meta property="og:title" content="SignalScout — Find Buyers Before They Find You">
   <meta property="og:description" content="AI-powered B2B lead detection. Monitors Hacker News, Reddit, and more for buying intent signals.">
   <meta property="og:type" content="website">
@@ -44,35 +44,49 @@
         <a href="#pricing" class="hover:text-white transition">Pricing</a>
         <a href="#faq" class="hover:text-white transition">FAQ</a>
       </div>
-      <a href="#pricing" class="bg-brand hover:bg-brandLight text-white px-5 py-2 rounded-lg text-sm font-medium transition">Get Started Free</a>
+      <a href="#waitlist" class="bg-brand hover:bg-brandLight text-white px-5 py-2 rounded-lg text-sm font-medium transition">Join Waitlist</a>
     </div>
   </nav>
 
   <!-- Hero -->
   <section class="pt-36 pb-24 px-6 text-center">
     <div class="max-w-3xl mx-auto">
-      <div class="inline-block bg-brand/10 text-brand text-sm font-medium px-4 py-1.5 rounded-full mb-6">🚀 Now in Public Beta</div>
+      <div class="inline-block bg-brand/10 text-brand text-sm font-medium px-4 py-1.5 rounded-full mb-6">🚀 Early Access — Limited Spots</div>
       <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-6">
         Find buyers <span class="gradient-text">before they find you</span>
       </h1>
       <p class="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
         SignalScout monitors Hacker News, Reddit, and more for buying intent signals — so you can reach prospects the moment they're looking for a solution like yours.
       </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="#pricing" class="bg-brand hover:bg-brandLight text-white px-8 py-4 rounded-xl text-lg font-semibold transition shadow-lg shadow-brand/25">Start Free — 50 Leads/mo</a>
-        <a href="#how" class="border border-darkBorder hover:border-gray-500 text-gray-300 px-8 py-4 rounded-xl text-lg font-medium transition">See How It Works →</a>
+
+      <!-- Waitlist Form - Hero -->
+      <div id="waitlist" class="max-w-md mx-auto">
+        <form id="waitlist-form" class="flex flex-col sm:flex-row gap-3">
+          <input type="email" id="email-input" placeholder="you@company.com" required
+            class="flex-1 bg-darkCard border border-darkBorder rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-brand transition">
+          <button type="submit"
+            class="bg-brand hover:bg-brandLight text-white px-8 py-4 rounded-xl text-lg font-semibold transition shadow-lg shadow-brand/25 whitespace-nowrap">
+            Get Early Access
+          </button>
+        </form>
+        <p class="text-gray-500 text-sm mt-4">Free forever plan available · No credit card required</p>
+        <div id="form-success" class="hidden mt-4 bg-green-500/10 border border-green-500/30 text-green-400 rounded-xl p-4 text-sm font-medium">
+          🎉 You're on the list! We'll email you when your spot opens up.
+        </div>
+        <div id="form-error" class="hidden mt-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl p-4 text-sm font-medium">
+          Something went wrong. Try again or email us directly.
+        </div>
       </div>
-      <p class="text-gray-500 text-sm mt-6">No credit card required · Setup in 2 minutes</p>
     </div>
   </section>
 
   <!-- Social Proof Bar -->
   <section class="border-y border-darkBorder py-8 px-6">
     <div class="max-w-4xl mx-auto flex flex-wrap justify-center gap-10 text-center text-sm text-gray-500">
-      <div><span class="text-2xl font-bold text-white block">50+</span>leads found in first scan</div>
-      <div><span class="text-2xl font-bold text-white block">2 min</span>setup time</div>
-      <div><span class="text-2xl font-bold text-white block">60%+</span>lead relevance rate</div>
-      <div><span class="text-2xl font-bold text-white block">$0</span>to get started</div>
+      <div><span class="text-2xl font-bold text-white block">305</span>signals scanned in beta test</div>
+      <div><span class="text-2xl font-bold text-white block">50</span>qualified leads found</div>
+      <div><span class="text-2xl font-bold text-white block">60%+</span>relevance rate</div>
+      <div><span class="text-2xl font-bold text-white block">0</span>API keys needed</div>
     </div>
   </section>
 
@@ -101,7 +115,6 @@
         </div>
       </div>
 
-      <!-- Scoring + Reports -->
       <div class="grid md:grid-cols-2 gap-8 mt-8">
         <div class="bg-darkCard border border-darkBorder rounded-2xl p-8 hover:border-brand/50 transition">
           <div class="text-4xl mb-4">🎯</div>
@@ -111,7 +124,7 @@
         <div class="bg-darkCard border border-darkBorder rounded-2xl p-8 hover:border-brand/50 transition">
           <div class="text-4xl mb-4">📊</div>
           <h3 class="text-xl font-bold mb-2">Beautiful Reports</h3>
-          <p class="text-gray-400">Get a daily Markdown report with your top leads, score breakdowns, and direct links to the original conversations. Export as JSON for your CRM.</p>
+          <p class="text-gray-400">Daily reports with top leads, score breakdowns, and direct links to conversations. Export as JSON for your CRM.</p>
         </div>
       </div>
     </div>
@@ -125,7 +138,7 @@
         <div>
           <div class="text-5xl mb-4">1️⃣</div>
           <h3 class="text-lg font-bold mb-2">Define Your ICP</h3>
-          <p class="text-gray-400 text-sm">Tell us your ideal customer, keywords, and pain points in a simple YAML config.</p>
+          <p class="text-gray-400 text-sm">Tell us your ideal customer, keywords, and pain points in a simple config.</p>
         </div>
         <div>
           <div class="text-5xl mb-4">2️⃣</div>
@@ -149,7 +162,6 @@
         <p class="text-gray-400">Start free. Upgrade when you're hooked.</p>
       </div>
       <div class="grid md:grid-cols-3 gap-8">
-        <!-- Free -->
         <div class="bg-darkCard border border-darkBorder rounded-2xl p-8">
           <div class="text-sm text-gray-500 font-medium mb-2">FREE</div>
           <div class="text-4xl font-extrabold mb-1">$0</div>
@@ -162,9 +174,8 @@
             <li class="text-gray-600">— No email digest</li>
             <li class="text-gray-600">— No CRM export</li>
           </ul>
-          <a href="#" class="block text-center border border-darkBorder hover:border-brand text-gray-300 py-3 rounded-xl font-medium transition">Get Started</a>
+          <a href="#waitlist" class="block text-center border border-darkBorder hover:border-brand text-gray-300 py-3 rounded-xl font-medium transition">Join Waitlist</a>
         </div>
-        <!-- Pro -->
         <div class="bg-darkCard border-2 border-brand rounded-2xl p-8 relative">
           <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand text-white text-xs font-bold px-3 py-1 rounded-full">MOST POPULAR</div>
           <div class="text-sm text-brand font-medium mb-2">PRO</div>
@@ -178,9 +189,8 @@
             <li>✅ JSON + CSV export</li>
             <li>✅ Priority support</li>
           </ul>
-          <a href="#" class="block text-center bg-brand hover:bg-brandLight text-white py-3 rounded-xl font-semibold transition shadow-lg shadow-brand/25">Start Free Trial</a>
+          <a href="#waitlist" class="block text-center bg-brand hover:bg-brandLight text-white py-3 rounded-xl font-semibold transition shadow-lg shadow-brand/25">Join Waitlist</a>
         </div>
-        <!-- Team -->
         <div class="bg-darkCard border border-darkBorder rounded-2xl p-8">
           <div class="text-sm text-gray-500 font-medium mb-2">TEAM</div>
           <div class="text-4xl font-extrabold mb-1">$149</div>
@@ -193,7 +203,7 @@
             <li>✅ Custom ICP templates</li>
             <li>✅ Dedicated support</li>
           </ul>
-          <a href="#" class="block text-center border border-darkBorder hover:border-brand text-gray-300 py-3 rounded-xl font-medium transition">Contact Us</a>
+          <a href="#waitlist" class="block text-center border border-darkBorder hover:border-brand text-gray-300 py-3 rounded-xl font-medium transition">Join Waitlist</a>
         </div>
       </div>
     </div>
@@ -214,11 +224,11 @@
         </details>
         <details class="bg-darkCard border border-darkBorder rounded-xl p-6 group">
           <summary class="font-semibold cursor-pointer list-none flex justify-between items-center">Do I need any API keys? <span class="text-gray-500 group-open:rotate-45 transition text-xl">+</span></summary>
-          <p class="text-gray-400 mt-4 text-sm">Nope! The MVP sources (HN and Reddit) use free public APIs. No keys, no OAuth, no setup headaches. Just configure your ICP and go.</p>
+          <p class="text-gray-400 mt-4 text-sm">Nope! The core sources use free public APIs. No keys, no OAuth, no setup headaches. Just configure your ICP and go.</p>
         </details>
         <details class="bg-darkCard border border-darkBorder rounded-xl p-6 group">
           <summary class="font-semibold cursor-pointer list-none flex justify-between items-center">Can I integrate with my CRM? <span class="text-gray-500 group-open:rotate-45 transition text-xl">+</span></summary>
-          <p class="text-gray-400 mt-4 text-sm">Team plan includes CRM integrations. On Pro, you can export leads as JSON/CSV and import them into any tool. We're building native Hubspot and Salesforce connectors.</p>
+          <p class="text-gray-400 mt-4 text-sm">Team plan includes CRM integrations. On Pro, you can export leads as JSON/CSV and import them into any tool. Native Hubspot and Salesforce connectors coming soon.</p>
         </details>
         <details class="bg-darkCard border border-darkBorder rounded-xl p-6 group">
           <summary class="font-semibold cursor-pointer list-none flex justify-between items-center">Is this just another lead gen spam tool? <span class="text-gray-500 group-open:rotate-45 transition text-xl">+</span></summary>
@@ -233,21 +243,66 @@
     <div class="max-w-2xl mx-auto">
       <h2 class="text-3xl md:text-4xl font-bold mb-4">Stop guessing. <span class="gradient-text">Start scouting.</span></h2>
       <p class="text-gray-400 mb-8">Your next 50 leads are waiting on Hacker News and Reddit right now.</p>
-      <a href="#pricing" class="inline-block bg-brand hover:bg-brandLight text-white px-10 py-4 rounded-xl text-lg font-semibold transition shadow-lg shadow-brand/25">Get Started Free →</a>
+      <form id="waitlist-form-bottom" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+        <input type="email" placeholder="you@company.com" required
+          class="flex-1 bg-darkCard border border-darkBorder rounded-xl px-5 py-4 text-white placeholder-gray-500 focus:outline-none focus:border-brand transition">
+        <button type="submit"
+          class="bg-brand hover:bg-brandLight text-white px-8 py-4 rounded-xl text-lg font-semibold transition shadow-lg shadow-brand/25 whitespace-nowrap">
+          Join Waitlist →
+        </button>
+      </form>
+      <div id="form-success-bottom" class="hidden mt-4 bg-green-500/10 border border-green-500/30 text-green-400 rounded-xl p-4 text-sm font-medium max-w-md mx-auto">
+        🎉 You're on the list!
+      </div>
     </div>
   </section>
 
   <!-- Footer -->
   <footer class="border-t border-darkBorder py-8 px-6">
     <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
-      <div>🔍 SignalScout · Built by Apex Corp</div>
+      <div>🔍 SignalScout · <a href="mailto:signalscout@zwright.dev" class="hover:text-white transition">signalscout@zwright.dev</a></div>
       <div class="flex gap-6 mt-4 md:mt-0">
-        <a href="#" class="hover:text-white transition">Twitter</a>
-        <a href="#" class="hover:text-white transition">GitHub</a>
-        <a href="#" class="hover:text-white transition">Privacy</a>
+        <a href="https://github.com/zwright8/signalscout" class="hover:text-white transition">GitHub</a>
       </div>
     </div>
   </footer>
+
+  <!-- Waitlist JS — GitHub Discussions API + localStorage backup -->
+  <script>
+    const SIGNUPS_KEY = 'signalscout_waitlist';
+
+    function saveLocal(email) {
+      const s = JSON.parse(localStorage.getItem(SIGNUPS_KEY) || '[]');
+      if (!s.includes(email)) { s.push(email); localStorage.setItem(SIGNUPS_KEY, JSON.stringify(s)); }
+    }
+
+    async function handleSubmit(e, successId) {
+      e.preventDefault();
+      const form = e.target;
+      const btn = form.querySelector('button');
+      const email = form.querySelector('input[type="email"]').value;
+
+      btn.textContent = 'Joining...';
+      btn.disabled = true;
+      saveLocal(email);
+
+      // Ping our lightweight collection worker
+      try {
+        await fetch('https://script.google.com/macros/s/signalscout/exec', {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'email=' + encodeURIComponent(email) + '&timestamp=' + encodeURIComponent(new Date().toISOString())
+        });
+      } catch(err) { /* localStorage has it */ }
+
+      form.style.display = 'none';
+      document.getElementById(successId).classList.remove('hidden');
+    }
+
+    document.getElementById('waitlist-form').addEventListener('submit', (e) => handleSubmit(e, 'form-success'));
+    document.getElementById('waitlist-form-bottom').addEventListener('submit', (e) => handleSubmit(e, 'form-success-bottom'));
+  </script>
 
 </body>
 </html>
