@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignalScout — B2B Lead Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 50:'#f8fafc',100:'#e2e8f0',200:'#cbd5e1',300:'#94a3b8',400:'#64748b',500:'#475569',600:'#334155',700:'#1e293b',800:'#0f172a',900:'#020617' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+        body { background: #0a0e1a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        .glass { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(99, 102, 241, 0.15); backdrop-filter: blur(12px); }
+        .glow { box-shadow: 0 0 20px rgba(99, 102, 241, 0.1); }
+        .score-high { background: linear-gradient(135deg, #10b981, #059669); }
+        .score-med { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .score-low { background: linear-gradient(135deg, #6b7280, #4b5563); }
+        .intent-high { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .intent-medium { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .intent-low { background: rgba(107, 114, 128, 0.15); color: #9ca3af; border: 1px solid rgba(107, 114, 128, 0.3); }
+        .intent-noise { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+        .btn-primary:hover { background: linear-gradient(135deg, #818cf8, #6366f1); }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .pulse-dot { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0f172a; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+</head>
+<body class="dark min-h-screen" x-data="app()" x-init="init()">
+    <!-- Header -->
+    <header class="glass sticky top-0 z-50 border-b border-indigo-500/10">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">S</div>
+                <h1 class="text-lg font-semibold text-white">Signal<span class="text-indigo-400">Scout</span></h1>
+                <span class="text-xs text-slate-500 ml-1">v2.0</span>
+            </div>
+            <nav class="flex items-center gap-1">
+                <button @click="tab='dashboard'" :class="tab==='dashboard' ? 'bg-indigo-500/20 text-indigo-300' : 'text-slate-400 hover:text-white'" class="px-3 py-1.5 rounded-lg text-sm transition">Dashboard</button>
+                <button @click="tab='leads'" :class="tab==='leads' ? 'bg-indigo-500/20 text-indigo-300' : 'text-slate-400 hover:text-white'" class="px-3 py-1.5 rounded-lg text-sm transition">Leads</button>
+                <button @click="tab='settings'" :class="tab==='settings' ? 'bg-indigo-500/20 text-indigo-300' : 'text-slate-400 hover:text-white'" class="px-3 py-1.5 rounded-lg text-sm transition">Settings</button>
+                <div class="w-px h-6 bg-slate-700 mx-2"></div>
+                <button @click="startScan()" :disabled="scanning" class="btn-primary px-4 py-1.5 rounded-lg text-sm text-white font-medium flex items-center gap-2 disabled:opacity-50 transition">
+                    <template x-if="scanning"><span class="pulse-dot">●</span></template>
+                    <template x-if="!scanning"><span>🔍</span></template>
+                    <span x-text="scanning ? 'Scanning...' : 'Run Scan'"></span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Dashboard Tab -->
+        <div x-show="tab==='dashboard'" x-cloak class="fade-in">
+            <!-- Stats Bar -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                <div class="glass rounded-xl p-4 glow">
+                    <div class="text-xs text-slate-400 uppercase tracking-wide">Total Leads</div>
+                    <div class="text-2xl font-bold text-white mt-1" x-text="stats.total_leads || 0"></div>
+                </div>
+                <div class="glass rounded-xl p-4 glow">
+                    <div class="text-xs text-slate-400 uppercase tracking-wide">New Today</div>
+                    <div class="text-2xl font-bold text-emerald-400 mt-1" x-text="stats.new_today || 0"></div>
+                </div>
+                <div class="glass rounded-xl p-4 glow">
+                    <div class="text-xs text-slate-400 uppercase tracking-wide">Contacted</div>
+                    <div class="text-2xl font-bold text-amber-400 mt-1" x-text="(stats.by_status?.contacted || 0) + (stats.by_status?.replied || 0)"></div>
+                </div>
+                <div class="glass rounded-xl p-4 glow">
+                    <div class="text-xs text-slate-400 uppercase tracking-wide">Converted</div>
+                    <div class="text-2xl font-bold text-indigo-400 mt-1" x-text="stats.by_status?.converted || 0"></div>
+                </div>
+                <div class="glass rounded-xl p-4 glow">
+                    <div class="text-xs text-slate-400 uppercase tracking-wide">Avg Score</div>
+                    <div class="text-2xl font-bold text-white mt-1" x-text="stats.avg_score || '—'"></div>
+                </div>
+            </div>
+
+            <!-- Recent Scans & Top Leads -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wide mb-3">Top Leads</h2>
+                    <div class="glass rounded-xl divide-y divide-slate-800">
+                        <template x-for="lead in topLeads" :key="lead.id">
+                            <div class="p-4 flex items-center gap-4 hover:bg-white/5 cursor-pointer transition" @click="tab='leads'; selectLead(lead)">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white text-sm font-bold shrink-0"
+                                     :class="lead.score >= 7 ? 'score-high' : lead.score >= 4 ? 'score-med' : 'score-low'"
+                                     x-text="lead.ai_score || lead.score || '?'"></div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-sm text-white truncate" x-text="lead.title"></div>
+                                    <div class="text-xs text-slate-500 mt-0.5">
+                                        <span x-text="lead.source"></span> · <span x-text="lead.author || 'anon'"></span>
+                                    </div>
+                                </div>
+                                <span class="text-xs px-2 py-0.5 rounded-full shrink-0"
+                                      :class="intentClass(lead.intent_category)"
+                                      x-text="(lead.intent_category||'').replace('_',' ')"></span>
+                            </div>
+                        </template>
+                        <div x-show="topLeads.length===0" class="p-8 text-center text-slate-500 text-sm">
+                            No leads yet. Run a scan to get started.
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wide mb-3">Recent Scans</h2>
+                    <div class="glass rounded-xl divide-y divide-slate-800">
+                        <template x-for="scan in scans" :key="scan.id">
+                            <div class="p-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-medium" :class="scan.status==='completed' ? 'text-emerald-400' : scan.status==='running' ? 'text-amber-400' : 'text-red-400'" x-text="scan.status"></span>
+                                    <span class="text-xs text-slate-500" x-text="timeAgo(scan.started_at)"></span>
+                                </div>
+                                <div class="text-xs text-slate-400 mt-1">
+                                    <span x-text="scan.leads_found || 0"></span> leads from <span x-text="scan.total_signals || 0"></span> signals
+                                </div>
+                            </div>
+                        </template>
+                        <div x-show="scans.length===0" class="p-6 text-center text-slate-500 text-sm">No scans yet</div>
+                    </div>
+
+                    <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wide mb-3 mt-6">By Source</h2>
+                    <div class="glass rounded-xl p-4">
+                        <template x-for="(count, source) in (stats.by_source || {})" :key="source">
+                            <div class="flex items-center justify-between py-1.5">
+                                <span class="text-sm text-slate-300 flex items-center gap-2">
+                                    <span x-text="source==='hackernews' ? '🟠' : source==='reddit' ? '🔴' : '🔵'"></span>
+                                    <span x-text="source"></span>
+                                </span>
+                                <span class="text-sm font-medium text-white" x-text="count"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leads Tab -->
+        <div x-show="tab==='leads'" x-cloak class="fade-in">
+            <!-- Filters -->
+            <div class="glass rounded-xl p-4 mb-4 flex flex-wrap gap-3 items-center">
+                <select x-model="filters.status" @change="fetchLeads()" class="bg-slate-800 border border-slate-700 text-sm text-white rounded-lg px-3 py-1.5">
+                    <option value="">All Status</option>
+                    <option value="new">New</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="replied">Replied</option>
+                    <option value="converted">Converted</option>
+                    <option value="dismissed">Dismissed</option>
+                </select>
+                <select x-model="filters.source" @change="fetchLeads()" class="bg-slate-800 border border-slate-700 text-sm text-white rounded-lg px-3 py-1.5">
+                    <option value="">All Sources</option>
+                    <option value="hackernews">Hacker News</option>
+                    <option value="reddit">Reddit</option>
+                    <option value="twitter">Twitter</option>
+                </select>
+                <select x-model="filters.intent" @change="fetchLeads()" class="bg-slate-800 border border-slate-700 text-sm text-white rounded-lg px-3 py-1.5">
+                    <option value="">All Intent</option>
+                    <option value="high_intent">High Intent</option>
+                    <option value="medium_intent">Medium Intent</option>
+                    <option value="low_intent">Low Intent</option>
+                    <option value="noise">Noise</option>
+                </select>
+                <input type="number" x-model="filters.minScore" @change="fetchLeads()" placeholder="Min score" min="1" max="10" step="0.5"
+                       class="bg-slate-800 border border-slate-700 text-sm text-white rounded-lg px-3 py-1.5 w-28">
+                <div class="flex-1"></div>
+                <span class="text-xs text-slate-500"><span x-text="leads.length"></span> leads</span>
+            </div>
+
+            <div class="flex gap-4">
+                <!-- Lead Table -->
+                <div class="flex-1 min-w-0">
+                    <div class="glass rounded-xl overflow-hidden">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-left">
+                                    <th class="px-4 py-3 text-xs text-slate-400 uppercase cursor-pointer" @click="toggleSort('score')">Score</th>
+                                    <th class="px-4 py-3 text-xs text-slate-400 uppercase">Title</th>
+                                    <th class="px-4 py-3 text-xs text-slate-400 uppercase hidden lg:table-cell">Source</th>
+                                    <th class="px-4 py-3 text-xs text-slate-400 uppercase hidden md:table-cell">Intent</th>
+                                    <th class="px-4 py-3 text-xs text-slate-400 uppercase">Status</th>
+                                    <th class="px-4 py-3 text-xs text-slate-400 uppercase hidden lg:table-cell">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/50">
+                                <template x-for="lead in leads" :key="lead.id">
+                                    <tr class="hover:bg-white/5 cursor-pointer transition" :class="selectedLead?.id === lead.id ? 'bg-indigo-500/10' : ''" @click="selectLead(lead)">
+                                        <td class="px-4 py-3">
+                                            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold"
+                                                 :class="(lead.ai_score||lead.score) >= 7 ? 'score-high' : (lead.ai_score||lead.score) >= 4 ? 'score-med' : 'score-low'"
+                                                 x-text="lead.ai_score || lead.score || '?'"></div>
+                                        </td>
+                                        <td class="px-4 py-3 max-w-xs">
+                                            <div class="text-white truncate" x-text="lead.title"></div>
+                                            <div class="text-xs text-slate-500 truncate" x-text="lead.author || 'anonymous'"></div>
+                                        </td>
+                                        <td class="px-4 py-3 hidden lg:table-cell">
+                                            <span class="text-xs" x-text="lead.source==='hackernews' ? '🟠 HN' : lead.source==='reddit' ? '🔴 Reddit' : '🔵 Twitter'"></span>
+                                        </td>
+                                        <td class="px-4 py-3 hidden md:table-cell">
+                                            <span class="text-xs px-2 py-0.5 rounded-full"
+                                                  :class="intentClass(lead.intent_category)"
+                                                  x-text="(lead.intent_category||'—').replace('_',' ')"></span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <select :value="lead.status" @change.stop="updateStatus(lead, $event.target.value)"
+                                                    @click.stop
+                                                    class="bg-transparent border border-slate-700 text-xs text-slate-300 rounded px-2 py-1">
+                                                <option value="new">New</option>
+                                                <option value="contacted">Contacted</option>
+                                                <option value="replied">Replied</option>
+                                                <option value="converted">Converted</option>
+                                                <option value="dismissed">Dismissed</option>
+                                            </select>
+                                        </td>
+                                        <td class="px-4 py-3 text-xs text-slate-500 hidden lg:table-cell" x-text="formatDate(lead.discovered_at)"></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                        <div x-show="leads.length===0" class="p-12 text-center text-slate-500">
+                            <div class="text-3xl mb-2">🔍</div>
+                            <div>No leads found. Try adjusting filters or run a scan.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detail Panel -->
+                <div x-show="selectedLead" x-cloak class="w-96 shrink-0 hidden xl:block fade-in">
+                    <div class="glass rounded-xl p-5 sticky top-20">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white text-lg font-bold"
+                                 :class="(selectedLead?.ai_score||selectedLead?.score) >= 7 ? 'score-high' : (selectedLead?.ai_score||selectedLead?.score) >= 4 ? 'score-med' : 'score-low'"
+                                 x-text="selectedLead?.ai_score || selectedLead?.score || '?'"></div>
+                            <button @click="selectedLead=null" class="text-slate-500 hover:text-white text-lg">✕</button>
+                        </div>
+                        <h3 class="text-white font-semibold mb-1" x-text="selectedLead?.title"></h3>
+                        <div class="flex items-center gap-2 text-xs text-slate-400 mb-4">
+                            <span x-text="selectedLead?.source"></span>
+                            <span>·</span>
+                            <span x-text="selectedLead?.author || 'anon'"></span>
+                            <span>·</span>
+                            <span x-text="formatDate(selectedLead?.discovered_at)"></span>
+                        </div>
+                        <a :href="selectedLead?.url" target="_blank" class="text-xs text-indigo-400 hover:text-indigo-300 block mb-4 truncate" x-text="selectedLead?.url"></a>
+
+                        <!-- Content -->
+                        <div x-show="selectedLead?.text" class="mb-4">
+                            <div class="text-xs text-slate-400 uppercase tracking-wide mb-1">Content</div>
+                            <div class="text-sm text-slate-300 bg-slate-800/50 rounded-lg p-3 max-h-32 overflow-y-auto" x-text="selectedLead?.text"></div>
+                        </div>
+
+                        <!-- AI Reasoning -->
+                        <div x-show="selectedLead?.ai_reasoning" class="mb-4">
+                            <div class="text-xs text-slate-400 uppercase tracking-wide mb-1">AI Analysis</div>
+                            <div class="text-sm text-slate-300 bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-3" x-text="selectedLead?.ai_reasoning"></div>
+                        </div>
+
+                        <!-- Suggested Response -->
+                        <div x-show="selectedLead?.suggested_response" class="mb-4">
+                            <div class="text-xs text-slate-400 uppercase tracking-wide mb-1 flex items-center justify-between">
+                                Suggested Response
+                                <button @click="copyText(selectedLead?.suggested_response)" class="text-indigo-400 hover:text-indigo-300">📋 Copy</button>
+                            </div>
+                            <div class="text-sm text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3" x-text="selectedLead?.suggested_response"></div>
+                        </div>
+
+                        <!-- Engagement -->
+                        <div class="flex gap-4 mb-4 text-xs text-slate-400">
+                            <span>⬆️ <span x-text="selectedLead?.engagement_upvotes || 0"></span> upvotes</span>
+                            <span>💬 <span x-text="selectedLead?.engagement_comments || 0"></span> comments</span>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="mb-4">
+                            <div class="text-xs text-slate-400 uppercase tracking-wide mb-1">Notes</div>
+                            <textarea x-model="noteText" @blur="saveNotes()" rows="3" placeholder="Add notes..."
+                                      class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-sm text-white resize-none"></textarea>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="flex gap-2 flex-wrap">
+                            <template x-for="s in ['new','contacted','replied','converted','dismissed']">
+                                <button @click="updateStatus(selectedLead, s)"
+                                        :class="selectedLead?.status === s ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'"
+                                        class="px-3 py-1 rounded-lg text-xs transition" x-text="s"></button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div x-show="tab==='settings'" x-cloak class="fade-in max-w-2xl">
+            <h2 class="text-lg font-semibold text-white mb-4">Configuration</h2>
+
+            <div class="glass rounded-xl p-6 mb-4">
+                <h3 class="text-sm font-semibold text-indigo-400 uppercase tracking-wide mb-3">Ideal Customer Profile</h3>
+                <label class="block mb-3">
+                    <span class="text-xs text-slate-400">Description</span>
+                    <input type="text" x-model="configData.icp.description" class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+                </label>
+                <label class="block mb-3">
+                    <span class="text-xs text-slate-400">Keywords (one per line)</span>
+                    <textarea x-model="configKeywords" rows="5" class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white resize-none"></textarea>
+                </label>
+                <label class="block mb-3">
+                    <span class="text-xs text-slate-400">Pain Points (one per line)</span>
+                    <textarea x-model="configPainPoints" rows="4" class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white resize-none"></textarea>
+                </label>
+                <label class="block mb-3">
+                    <span class="text-xs text-slate-400">Negative Keywords (one per line)</span>
+                    <textarea x-model="configNegKeywords" rows="3" class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white resize-none"></textarea>
+                </label>
+            </div>
+
+            <div class="glass rounded-xl p-6 mb-4">
+                <h3 class="text-sm font-semibold text-indigo-400 uppercase tracking-wide mb-3">AI Scoring</h3>
+                <label class="block mb-3">
+                    <span class="text-xs text-slate-400">Scoring Mode</span>
+                    <select x-model="configData.scoring.mode" class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+                        <option value="heuristic">Heuristic Only</option>
+                        <option value="ai">AI Only</option>
+                        <option value="hybrid">Hybrid (recommended)</option>
+                    </select>
+                </label>
+                <label class="block mb-3">
+                    <span class="text-xs text-slate-400">Anthropic API Key</span>
+                    <input type="password" x-model="configData.scoring.ai_api_key" placeholder="sk-ant-..."
+                           class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+                </label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="block">
+                        <span class="text-xs text-slate-400">AI Threshold (min heuristic score)</span>
+                        <input type="number" x-model.number="configData.scoring.ai_threshold" min="1" max="10"
+                               class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+                    </label>
+                    <label class="block">
+                        <span class="text-xs text-slate-400">Max AI Scores Per Run</span>
+                        <input type="number" x-model.number="configData.scoring.max_ai_per_run" min="1" max="200"
+                               class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+                    </label>
+                </div>
+            </div>
+
+            <button @click="saveConfig()" class="btn-primary px-6 py-2 rounded-lg text-sm text-white font-medium">
+                Save Configuration
+            </button>
+            <span x-show="configSaved" x-transition class="ml-3 text-sm text-emerald-400">✓ Saved</span>
+        </div>
+    </main>
+
+    <!-- Toast -->
+    <div x-show="toast" x-transition class="fixed bottom-6 right-6 glass rounded-xl px-4 py-3 text-sm z-50 border-indigo-500/30" x-text="toast"></div>
+
+    <script>
+    function app() {
+        return {
+            tab: 'dashboard',
+            stats: {},
+            leads: [],
+            topLeads: [],
+            scans: [],
+            selectedLead: null,
+            noteText: '',
+            scanning: false,
+            toast: '',
+            configData: { icp: { description: '', keywords: [], pain_points: [] }, scoring: { mode: 'hybrid', ai_api_key: '', ai_threshold: 4, max_ai_per_run: 50 }, negative_keywords: [] },
+            configKeywords: '',
+            configPainPoints: '',
+            configNegKeywords: '',
+            configSaved: false,
+            filters: { status: '', source: '', intent: '', minScore: '' },
+            sortBy: 'score',
+            sortOrder: 'desc',
+
+            async init() {
+                await Promise.all([this.fetchStats(), this.fetchLeads(), this.fetchScans(), this.fetchConfig()]);
+                this.topLeads = this.leads.slice(0, 10);
+                this.pollScanStatus();
+            },
+
+            async fetchStats() {
+                try { this.stats = await (await fetch('/api/stats')).json(); } catch(e) { console.error(e); }
+            },
+
+            async fetchLeads() {
+                try {
+                    const params = new URLSearchParams();
+                    if (this.filters.status) params.set('status', this.filters.status);
+                    if (this.filters.source) params.set('source', this.filters.source);
+                    if (this.filters.intent) params.set('intent_category', this.filters.intent);
+                    if (this.filters.minScore) params.set('min_score', this.filters.minScore);
+                    params.set('sort_by', this.sortBy);
+                    params.set('sort_order', this.sortOrder);
+                    const data = await (await fetch('/api/leads?' + params)).json();
+                    this.leads = data.leads || [];
+                    if (this.tab === 'dashboard') this.topLeads = this.leads.slice(0, 10);
+                } catch(e) { console.error(e); }
+            },
+
+            async fetchScans() {
+                try { this.scans = (await (await fetch('/api/scans')).json()).scans || []; } catch(e) { console.error(e); }
+            },
+
+            async fetchConfig() {
+                try {
+                    const c = await (await fetch('/api/config')).json();
+                    this.configData = {
+                        icp: c.icp || { description: '', keywords: [], pain_points: [] },
+                        scoring: c.scoring || { mode: 'hybrid', ai_api_key: '', ai_threshold: 4, max_ai_per_run: 50 },
+                        negative_keywords: c.negative_keywords || []
+                    };
+                    this.configKeywords = (this.configData.icp.keywords || []).join('\n');
+                    this.configPainPoints = (this.configData.icp.pain_points || []).join('\n');
+                    this.configNegKeywords = (this.configData.negative_keywords || []).join('\n');
+                } catch(e) { console.error(e); }
+            },
+
+            async saveConfig() {
+                const payload = {
+                    icp: {
+                        ...this.configData.icp,
+                        keywords: this.configKeywords.split('\n').map(s=>s.trim()).filter(Boolean),
+                        pain_points: this.configPainPoints.split('\n').map(s=>s.trim()).filter(Boolean),
+                    },
+                    negative_keywords: this.configNegKeywords.split('\n').map(s=>s.trim()).filter(Boolean),
+                    scoring: this.configData.scoring,
+                };
+                await fetch('/api/config', { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+                this.configSaved = true;
+                setTimeout(() => this.configSaved = false, 2000);
+                this.showToast('Configuration saved');
+            },
+
+            async startScan() {
+                if (this.scanning) return;
+                this.scanning = true;
+                try {
+                    await fetch('/api/scan', { method: 'POST' });
+                    this.showToast('Scan started...');
+                    this.pollScanStatus();
+                } catch(e) { this.scanning = false; this.showToast('Scan failed to start'); }
+            },
+
+            async pollScanStatus() {
+                const poll = async () => {
+                    try {
+                        const { running } = await (await fetch('/api/scan/status')).json();
+                        this.scanning = running;
+                        if (running) {
+                            setTimeout(poll, 3000);
+                        } else {
+                            await Promise.all([this.fetchStats(), this.fetchLeads(), this.fetchScans()]);
+                            this.topLeads = this.leads.slice(0, 10);
+                        }
+                    } catch(e) { this.scanning = false; }
+                };
+                poll();
+            },
+
+            selectLead(lead) {
+                this.selectedLead = lead;
+                this.noteText = lead.notes || '';
+            },
+
+            async updateStatus(lead, status) {
+                await fetch(`/api/leads/${lead.id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ status }) });
+                lead.status = status;
+                if (this.selectedLead?.id === lead.id) this.selectedLead.status = status;
+                this.showToast(`Status → ${status}`);
+                this.fetchStats();
+            },
+
+            async saveNotes() {
+                if (!this.selectedLead) return;
+                await fetch(`/api/leads/${this.selectedLead.id}`, { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ notes: this.noteText }) });
+                this.selectedLead.notes = this.noteText;
+            },
+
+            toggleSort(field) {
+                if (this.sortBy === field) { this.sortOrder = this.sortOrder === 'desc' ? 'asc' : 'desc'; }
+                else { this.sortBy = field; this.sortOrder = 'desc'; }
+                this.fetchLeads();
+            },
+
+            intentClass(cat) {
+                return cat === 'high_intent' ? 'intent-high' : cat === 'medium_intent' ? 'intent-medium' : cat === 'low_intent' ? 'intent-low' : 'intent-noise';
+            },
+
+            formatDate(d) {
+                if (!d) return '—';
+                try { return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); } catch { return d; }
+            },
+
+            timeAgo(d) {
+                if (!d) return '';
+                const secs = (Date.now() - new Date(d).getTime()) / 1000;
+                if (secs < 60) return 'just now';
+                if (secs < 3600) return Math.floor(secs/60) + 'm ago';
+                if (secs < 86400) return Math.floor(secs/3600) + 'h ago';
+                return Math.floor(secs/86400) + 'd ago';
+            },
+
+            copyText(text) {
+                navigator.clipboard.writeText(text || '');
+                this.showToast('Copied to clipboard');
+            },
+
+            showToast(msg) {
+                this.toast = msg;
+                setTimeout(() => this.toast = '', 3000);
+            }
+        }
+    }
+    </script>
+</body>
+</html>
