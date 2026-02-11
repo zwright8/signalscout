@@ -33,6 +33,14 @@ icp:
     - "solopreneur"
     - "small team"
 
+negative_keywords:
+  - attorney
+  - lawyer
+  - legal
+  - accounting
+  - tax
+  - hiring manager
+
 sources:
   hackernews:
     enabled: true
@@ -64,6 +72,14 @@ scoring:
     pain_point_match: 0.2
     recency: 0.2
     engagement: 0.2
+  mode: "hybrid"
+  ai_api_key: ""
+  ai_threshold: 4
+  max_ai_per_run: 50
+
+server:
+  host: "0.0.0.0"
+  port: 8080
 
 output:
   leads_file: "output/leads.json"

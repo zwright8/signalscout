@@ -1,92 +1,76 @@
-# 🔍 SignalScout
+# 🔍 SignalScout v2
 
-**AI-powered B2B lead detection.** Monitors public signals to find companies likely to buy your product RIGHT NOW.
-
-## What It Does
-
-SignalScout scans free, public data sources for buying intent signals — people asking for recommendations, complaining about existing tools, or discussing pain points that match your Ideal Customer Profile (ICP).
-
-**Current Sources (no API keys needed):**
-- 🟠 **Hacker News** — HN Search API (Algolia)
-- 🔴 **Reddit** — Public JSON endpoints
+**AI-powered B2B lead detection dashboard.** Monitors public signals to find companies likely to buy your product RIGHT NOW.
 
 ## Quick Start
 
 ```bash
-# 1. Install dependencies
+# Install dependencies
 pip install -r requirements.txt
 
-# 2. Edit your ICP config
-nano config.yaml
-
-# 3. Run the pipeline
-python pipeline.py
-
-# 4. Check your leads
-cat output/report.md
+# Run the dashboard
+python3 app.py
+# → Open http://localhost:8080
 ```
+
+## Features
+
+- **Multi-source scanning** — Hacker News, Reddit, Twitter/X
+- **AI-powered scoring** — Claude analyzes buying intent, suggests responses
+- **Heuristic fallback** — Works without an API key using keyword/pain-point matching
+- **Real-time dashboard** — Dark-themed SPA with filtering, sorting, lead management
+- **Lead pipeline** — Track leads from discovery → contacted → converted
+
+## Architecture
+
+- **Backend:** FastAPI (Python)
+- **Frontend:** Tailwind CSS + Alpine.js (no build step)
+- **Database:** SQLite
+- **AI:** Anthropic Claude (optional, user provides API key)
 
 ## Configuration
 
-Edit `config.yaml` to define your Ideal Customer Profile:
+Edit `config.yaml` to set your ICP, keywords, and scoring preferences. Or use the Settings panel in the dashboard.
 
-```yaml
-icp:
-  description: "AI tools for small business"
-  keywords:
-    - "AI tools"
-    - "small business"
-    - "looking for a tool"
-  pain_points:
-    - "too expensive"
-    - "hard to use"
-```
+### AI Scoring
 
-## Output
+To enable AI-powered intent classification:
+1. Get an API key from [console.anthropic.com](https://console.anthropic.com)
+2. Add it in Settings → AI Scoring → API Key
+3. Set mode to "hybrid" or "ai"
 
-- **`output/leads.json`** — Machine-readable leads with scores and metadata
-- **`output/report.md`** — Human-readable report with top leads, score breakdowns
+## API Endpoints
 
-## Scoring
-
-Each signal is scored 1-10 based on:
-| Factor | Weight | What It Measures |
-|--------|--------|-----------------|
-| Keyword Match | 40% | How many ICP keywords appear |
-| Pain Points | 20% | Mentions of frustrations/needs |
-| Recency | 20% | How recent the signal is |
-| Engagement | 20% | Upvotes + comments |
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/` | Dashboard |
+| GET | `/api/leads` | List leads (filterable) |
+| GET | `/api/leads/{id}` | Get single lead |
+| PATCH | `/api/leads/{id}` | Update lead status/notes |
+| POST | `/api/scan` | Trigger new scan |
+| GET | `/api/scans` | List past scans |
+| GET | `/api/scan/status` | Check if scan is running |
+| GET | `/api/stats` | Dashboard statistics |
+| GET | `/api/config` | Get configuration |
+| PUT | `/api/config` | Update configuration |
 
 ## Project Structure
 
 ```
 signalscout/
-├── config.yaml          # Your ICP definition
-├── pipeline.py          # Main orchestrator
-├── scorer.py            # Heuristic scoring engine
+├── app.py              # FastAPI app
+├── config.yaml         # ICP configuration
+├── database.py         # SQLite schema + CRUD
+├── scorer.py           # Heuristic + AI scoring
+├── pipeline.py         # Scan orchestrator
 ├── sources/
-│   ├── hackernews.py    # Hacker News source
-│   └── reddit.py        # Reddit source
-├── output/
-│   ├── leads.json       # Raw scored leads
-│   └── report.md        # Pretty report
-├── requirements.txt
-└── README.md
+│   ├── hackernews.py   # HN Algolia API
+│   ├── reddit.py       # Reddit JSON API
+│   └── twitter.py      # Twitter/Nitter
+├── templates/
+│   └── index.html      # Dashboard SPA
+└── requirements.txt
 ```
-
-## Roadmap
-
-- [ ] Twitter/X source
-- [ ] GitHub source
-- [ ] Job board source
-- [ ] AI-powered scoring (GPT/Claude)
-- [ ] Web dashboard
-- [ ] Email digest
-- [ ] CRM integrations
-
-## Screenshots
-
-*Coming soon — after v1.0 launch*
 
 ---
 
